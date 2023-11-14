@@ -3,7 +3,7 @@ title: Testing git as headless cms for 11ty
 layout: base.njk
 ---
 
-### Idée base
+### Idée base !!!
 1- Créer un compte Github CAMP avec un repo Maison-Germaine-Tillon
 	- Setup un gitpages [[Git - GitPages Quick tutorial fr]]
 	- Setup custom domain

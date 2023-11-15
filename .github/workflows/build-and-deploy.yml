@@ -7,31 +7,48 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@master
         with:
           lfs: true
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Utilisez la version LTS de Node.js
+          node-version: '18'
       - name: Install NPM packages
-        run: npm ci
+        run: npm install    
       - name: run build
-        run: npm run build
+        run: npm run build   
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-site
+          path: ./www
 
+  # Deploy job
   deploy:
+    # Add a dependency to the build job
     needs: build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
-      pages: write
-      contents: write
-      pull-requests: write
+      pages: write      # to deploy to Pages
+      contents: write    # to read from the repository
+      pull-requests: write # to update the status of pull requests
+
+    # Deploy to the github-pages environment
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
           folder: ./www

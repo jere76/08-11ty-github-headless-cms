@@ -3,7 +3,8 @@ on:
     branches:
       - main
 
-build:
+jobs:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -18,7 +19,10 @@ build:
       - name: run build
         run: npm run build   
       - name: Upload Artifact
-        uses: actions/upload-pages-artifact@main
+        uses: actions/upload-artifact@v2
+        with:
+          name: built-site
+          path: ./dist
 
   # Deploy job
   deploy:
@@ -28,7 +32,8 @@ build:
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
     permissions:
       pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
+      contents: read    # to read from the repository
+      pull-requests: write # to update the status of pull requests
 
     # Deploy to the github-pages environment
     environment:
@@ -38,6 +43,13 @@ build:
     # Specify runner + deployment step
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+        uses: JamesIves/github-pages-deploy-action@4.1.3
+        with:
+          branch: gh-pages
+          folder: dist
+          token: ${{ secrets.GITHUB_TOKEN }}

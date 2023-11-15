@@ -19,10 +19,10 @@ jobs:
       - name: run build
         run: npm run build   
       - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: built-site
-          path: ./dist
+          path: ./www
 
   # Deploy job
   deploy:
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.ref }}
       - name: Deploy to GitHub Pages

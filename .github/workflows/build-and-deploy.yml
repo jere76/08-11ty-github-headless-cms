@@ -1,56 +1,36 @@
+
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-        with:
-          lfs: true
-          ref: main
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Install NPM packages
-        run: npm install    
-      - name: run build
-        run: npm run build   
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: built-site
-          path: ./www
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Install dependencies & build
+        run: |
+          npm install
+          npx @11ty/eleventy
+      - uses: actions/upload-pages-artifact@v2
 
-  # Deploy job
   deploy:
-    # Add a dependency to the build job
+    runs-on: ubuntu-latest
     needs: build
-
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write      # to deploy to Pages
-      contents: write    # to read from the repository
-      pull-requests: write # to update the status of pull requests
-
-    # Deploy to the github-pages environment
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v2
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-
-    # Specify runner + deployment step
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages
-          folder: ./www
-          token: ${{ secrets.GITHUB_TOKEN }}
+      url: ${{ steps.deployment.outputs.page_url }}

@@ -10,6 +10,7 @@ jobs:
       - uses: actions/checkout@master
         with:
           lfs: true
+          ref: main
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
